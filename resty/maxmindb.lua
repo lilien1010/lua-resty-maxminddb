@@ -1,11 +1,8 @@
---	翻译接口
---
+--[[
+	a lua interface (build with luajit ffi) for  maxminddb to get country code from ip address
+]]
 
--- https://github.com/agladysh/lua-geoip
-
-local json 			= 	require('cjson'); 
- 
-  
+local 	json				= 	require('cjson');  
 local	json_encode			=	json.encode
 local	json_decode			=	json.decode
 local	ht_print			=	ngx.print
@@ -27,8 +24,7 @@ local ngx_now 				=	ngx.now
 local ngx_exit 				=	ngx.exit
 
 
-local _M	={ 
-}
+local _M	={}
 
 local mt = { __index = _M }
 
@@ -137,28 +133,32 @@ int MMDB_aget_value(MMDB_entry_s *const start,  MMDB_entry_data_s *const entry_d
 char *MMDB_strerror(int error_code);
 ]]
 
-local MMDB_SUCCESS=0
-local MMDB_DATA_TYPE_UTF8_STRING=2
-local MMDB_DATA_TYPE_POINTER=1
-local MMDB_DATA_TYPE_DOUBLE=3
-local MMDB_DATA_TYPE_BYTES=4
+local MMDB_SUCCESS				=	0
+local MMDB_DATA_TYPE_POINTER	=	1
+local MMDB_DATA_TYPE_UTF8_STRING=	2
+local MMDB_DATA_TYPE_DOUBLE		=	3
+local MMDB_DATA_TYPE_BYTES		=	4
 
 -- you should install the libmaxminddb to your system
-local maxm 	= ffi.load('libmaxminddb.so.0.0.7')
+local maxm 	= ffi.load('libmaxminddb.so')
 --https://github.com/maxmind/libmaxminddb
 
 local mmdb 	=	ffi_new('MMDB_s')
+
+
+local maxmind_country_geoip2_file	=	'/home/country-geoip.mmdb'
+-- https://www.maxmind.com/en/geoip2-databases  you should download  the mmdb file from maxmind
 
 local file_name_ip2   = ffi_new('char[?]',#maxmind_country_geoip2_file,maxmind_country_geoip2_file)
 local maxmind_reday   = maxm.MMDB_open(file_name_ip2,0,mmdb)
 
 function _M:get_area_code(ip)
 
-  	local ip_str  	= ffi.cast('const char *',ffi_new('char[?]',#ip+1,ip))
-  	local gai_error  	= ffi_new('int[1]')
-	local mmdb_error  = ffi_new('int[1]')
+  	local ip_str  		= 	ffi.cast('const char *',ffi_new('char[?]',#ip+1,ip))
+  	local gai_error  	=	ffi_new('int[1]')
+	local mmdb_error	= 	ffi_new('int[1]')
 
-	local result 		= maxm.MMDB_lookup_string(mmdb,ip_str,gai_error,mmdb_error)
+	local result 		=	maxm.MMDB_lookup_string(mmdb,ip_str,gai_error,mmdb_error)
 
   	if mmdb_error[0] ~= MMDB_SUCCESS then
 		return nil,'fail when lookup'
@@ -174,16 +174,15 @@ function _M:get_area_code(ip)
         return nil,'not found'
 	end
 
-   local lookup  = ffi_new('const char*[3]') 
-   lookup[0]  =  ffi.cast('const char *',ffi_new('char[?]',10,'country'))
-   lookup[1]  =  ffi.cast('const char *',ffi_new('char[?]',10,'iso_code'))
-
-
-   local entry_data  = ffi_new('MMDB_entry_data_s[1]') 
-   lookup   = ffi.cast('const char *const *const',lookup)
-   local mmdb_error = maxm.MMDB_aget_value(result.entry, entry_data, lookup);
-
-
+	local lookup  		= 	ffi_new('const char*[3]') 
+	lookup[0]			=	ffi.cast('const char *',ffi_new('char[?]',10,'country'))
+	lookup[1]			=	ffi.cast('const char *',ffi_new('char[?]',10,'iso_code'))
+	
+	
+	local entry_data  	= 	ffi_new('MMDB_entry_data_s[1]') 
+	lookup   			= 	ffi.cast('const char *const *const',lookup)
+	local mmdb_error 	= 	maxm.MMDB_aget_value(result.entry, entry_data, lookup);
+ 
 	if mmdb_error ~= MMDB_SUCCESS then
 		return nil,'no value'
 	end
@@ -193,16 +192,16 @@ function _M:get_area_code(ip)
          return nil,'no data'
     end
  
-  	local country = ''
+  	local country		=	''
 	if entry_data[0].type == MMDB_DATA_TYPE_UTF8_STRING then
-      return ffi_str(entry_data[0].utf8_string,entry_data[0].data_size) 
+		return ffi_str(entry_data[0].utf8_string,entry_data[0].data_size) 
 	end
 	
 	if entry_data[0].type ==MMDB_DATA_TYPE_BYTES then
     	return ffi_str(ffi.cast('char * ',entry_data[0].bytes),entry_data[0].data_size) 
 	end
 
-  return nil,'no data'
+	return nil,'no data'
 end
 
  
