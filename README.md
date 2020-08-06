@@ -1,16 +1,17 @@
 
-------
 
-#a lua client for maxmind db
-###to get ip location with ip database offerd by maxmind
+# a lua client for maxmind db
+
+to get ip location with ip database offerd by maxmind
 
  
-##Installation
-1: install libmaxminddb from this [repo](https://github.com/maxmind/libmaxminddb)
+# Installation
 
-2: download ip database from [maxmind](https://www.maxmind.com/en/geoip2-databases)
+1. install libmaxminddb from this [repo](https://github.com/maxmind/libmaxminddb)
+2. download ip database from [maxmind](https://www.maxmind.com/en/geoip2-databases)
 
-###demo code:
+# demo code:
+
 ```lua
 local maxminddb 	=	require("resty.maxminddb")
 local geo_file 		=	'/home/lua/common_data/GeoIP2-Country-20161004.mmdb'
