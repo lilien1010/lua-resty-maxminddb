@@ -7,9 +7,8 @@ to get ip location with ip database offerd by maxmind
  
 # Installation
 
-1: install libmaxminddb from this [repo](https://github.com/maxmind/libmaxminddb)
-
-2: download ip database from [maxmind](https://www.maxmind.com/en/geoip2-databases)
+1. install libmaxminddb from this [repo](https://github.com/maxmind/libmaxminddb)
+2. download ip database from [maxmind](https://www.maxmind.com/en/geoip2-databases)
 
 # demo code:
 
