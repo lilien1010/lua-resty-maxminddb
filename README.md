@@ -15,16 +15,15 @@ to get ip location with ip database offerd by maxmind
 ```lua
 local maxminddb 	=	require("resty.maxminddb")
 local geo_file 		=	'/home/lua/common_data/GeoIP2-Country-20161004.mmdb'
-local ipDB			=	maxminddb.new(geo_file) 
+local ip_db		=	maxminddb.new(geo_file) 
 
-local ip 	=	ngx.req.get_uri_args()['ip']
-local out 	=	{}
-if not ip then
+local client_ip 	=	ngx.req.get_uri_args()['ip']
+local out 		=	{}
+if not client_ip then
 	return nil
 end
-local res,err 		=	ipDB:get_area_code(ip)
+local res,err 		=	ip_db:get_area_code(client_ip)
 ngx.print( res )
-  
 ```
   
 
